@@ -1,0 +1,13 @@
+spring:
+  profiles:
+    active: local
+
+  cloud:
+    gateway:
+      routes:
+        - id: expense-tracker-backend
+          uri: http://expense-tracker-backend:8181
+          predicates:
+            - Path=/api/expense-tracker/**
+          filters:
+            - StripPrefix=2

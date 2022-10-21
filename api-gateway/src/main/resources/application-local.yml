@@ -1,0 +1,8 @@
+server:
+  port: 9191
+
+api:
+  auth:
+    username: et-user
+    password: et-password
+    role: USER

@@ -1,0 +1,5 @@
+api:
+  auth:
+    username: user
+    password: password
+    role: USER
