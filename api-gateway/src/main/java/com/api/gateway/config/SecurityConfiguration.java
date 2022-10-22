@@ -20,8 +20,8 @@ public class SecurityConfiguration {
 
   @Bean
   public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
-    return http.httpBasic()
-        .and().authorizeExchange().pathMatchers("/api/**").authenticated() // protect '/api/**' mappings
+    return http.httpBasic(customizer -> customizer.authenticationEntryPoint(new CustomizedAuthenticationEntryPoint()))
+        .authorizeExchange().pathMatchers(authProperties.getProtectedMapping()).authenticated() // protect configured mapping
         .and().authorizeExchange().anyExchange().permitAll() // disable authentication for other routes
         .and().csrf().disable()
         .build();
