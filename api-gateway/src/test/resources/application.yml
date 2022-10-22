@@ -1,5 +1,6 @@
 api:
   auth:
+    protected-mapping: /api/**
     username: user
     password: password
     role: USER
