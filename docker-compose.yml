@@ -1,0 +1,53 @@
+version: "3.9"
+services:
+  postgres-db:
+    image: postgres:13.3
+    container_name: expense-tracker-db
+    restart: always
+    environment:
+      - POSTGRES_DB=expense-tracker
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=postgres
+    expose:
+      - "5432"
+    networks:
+      - custom-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 2s
+      timeout: 2s
+      retries: 2
+
+  expense-tracker:
+    build: ./expense-tracker
+    container_name: expense-tracker-backend
+    environment:
+      - SPRING_PROFILES_ACTIVE=develop
+    expose:
+      - "8181"
+    networks:
+      - custom-network
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+  
+  dummy-server:
+    build: ./dummy-server
+    container_name: dummy-server-backend
+    expose:
+      - "5000"
+    networks:
+      - custom-network
+  
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway-backend
+    environment:
+      - SPRING_PROFILES_ACTIVE=develop
+    ports:
+      - "9191:9191"
+    networks:
+      - custom-network
+
+networks:
+  custom-network:
