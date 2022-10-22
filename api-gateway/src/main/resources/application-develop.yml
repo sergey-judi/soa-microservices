@@ -1,8 +1,13 @@
 server:
   port: 9191
 
+uri:
+  expense-tracker: http://expense-tracker-backend:8181
+  dummy-server: http://dummy-server-backend:5000
+
 api:
   auth:
+    protected-mapping: /api/**
     username: admin
     password: admin
     role: ADMIN

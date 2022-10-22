@@ -4,10 +4,29 @@ spring:
 
   cloud:
     gateway:
+      httpclient:
+        wiretap: true
       routes:
         - id: expense-tracker-backend
-          uri: http://expense-tracker-backend:8181
+          uri: ${uri.expense-tracker}
           predicates:
             - Path=/api/expense-tracker/**
+          filters:
+            - StripPrefix=2
+
+        - id: expense-tracker-frontend
+          uri: ${uri.expense-tracker}
+          predicates:
+            - Path=/web/**
+
+        - id: expense-tracker-swagger
+          uri: ${uri.expense-tracker}
+          predicates:
+            - Path=/swagger-ui.html,/swagger-ui/**,/v3/api-docs/**
+
+        - id: dummy-server-backend
+          uri: ${uri.dummy-server}
+          predicates:
+            - Path=/api/dummy-server/**
           filters:
             - StripPrefix=2
