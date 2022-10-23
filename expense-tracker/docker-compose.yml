@@ -1,0 +1,35 @@
+version: "3.9"
+services:
+  postgres-db:
+    image: postgres:13.3
+    container_name: expense-tracker-db
+    restart: always
+    environment:
+      - POSTGRES_DB=expense-tracker
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=postgres
+    expose:
+      - "5432"
+    networks:
+      - scaled-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 2s
+      timeout: 2s
+      retries: 2
+
+  expense-tracker:
+    image: expense-tracker:0.0.1-stable
+    environment:
+      - SPRING_PROFILES_ACTIVE=develop
+    ports:
+      - "8181-8182:8181"
+    scale: 2
+    networks:
+      - scaled-network
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+
+networks:
+  scaled-network:
