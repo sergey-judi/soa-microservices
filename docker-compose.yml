@@ -12,6 +12,8 @@ services:
       - "5432"
     networks:
       - custom-network
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 2s
@@ -24,8 +26,10 @@ services:
     container_name: expense-tracker-backend
     environment:
       - SPRING_PROFILES_ACTIVE=develop
-    expose:
-      - "8181"
+    # expose:
+    #   - "8181"
+    ports:
+      - "8181:8181"
     networks:
       - custom-network
     depends_on:
