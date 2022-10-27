@@ -1,6 +1,17 @@
 server:
   port: 9191
 
+spring:
+  cache:
+    type: redis
+    redis:
+      cache-null-values: false
+      time-to-live: 180000
+    cache-names: userTokenCache
+  redis:
+    host: localhost
+    port: 6379
+
 uri:
   expense-tracker: http://localhost:8181
   dummy-server: http://localhost:5000
