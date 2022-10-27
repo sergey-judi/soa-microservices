@@ -1,8 +1,10 @@
 package com.api.gateway.web;
 
+import com.api.gateway.exception.ApiThrottlingException;
+import com.api.gateway.exception.MissingRequestHeaderException;
+import com.api.gateway.util.LoggingUtils;
 import com.api.gateway.web.model.ErrorCode;
 import com.api.gateway.web.model.ErrorResponse;
-import com.api.gateway.util.LoggingUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.core.annotation.Order;
@@ -43,16 +45,34 @@ public class ErrorHandler implements WebExceptionHandler {
   @Override
   public Mono<Void> handle(ServerWebExchange exchange, Throwable ex) {
     ServerHttpRequest request = exchange.getRequest();
+    LoggingUtils.logRequest(request.getURI(), request.getMethod(), request.getHeaders(), "");
+
     if (ex instanceof BadCredentialsException) {
       log.error("Handling bad credentials exception [{}]", ex.getMessage());
-      LoggingUtils.logRequest(request.getURI(), request.getMethod(), request.getHeaders(), "");
       return sendErrorResponse(exchange, ErrorCode.BAD_CREDENTIALS);
     }
 
     if (ex instanceof ResponseStatusException) {
       log.error("Handling missing mapping exception [{}]", ex.getMessage());
-      LoggingUtils.logRequest(request.getURI(), request.getMethod(), request.getHeaders(), "");
       return sendErrorResponse(exchange, ErrorCode.NOT_FOUND);
+    }
+
+    if (ex instanceof MissingRequestHeaderException) {
+      log.error("Handling missing header exception [{}]", ex.getMessage());
+      return sendErrorResponse(
+          exchange,
+          ErrorResponse.of(ErrorCode.MISSING_HEADER.getCode(), ex.getMessage()),
+          ErrorCode.MISSING_HEADER
+      );
+    }
+
+    if (ex instanceof ApiThrottlingException) {
+      log.error("Handling api throttling exception [{}]", ex.getMessage());
+      return sendErrorResponse(
+          exchange,
+          ErrorResponse.of(ErrorCode.API_THROTTLING.getCode(), ex.getMessage()),
+          ErrorCode.API_THROTTLING
+      );
     }
 
     log.error("Handling internal exception [{}]", ex.getMessage());
@@ -66,6 +86,10 @@ public class ErrorHandler implements WebExceptionHandler {
   private Mono<Void> sendErrorResponse(ServerWebExchange exchange, ErrorCode errorCode) {
     ErrorResponse body = buildErrorResponse(errorCode);
 
+    return sendErrorResponse(exchange, body, errorCode);
+  }
+
+  private Mono<Void> sendErrorResponse(ServerWebExchange exchange, ErrorResponse body, ErrorCode errorCode) {
     LoggingUtils.logResponse(errorCode.getStatus(), exchange.getResponse().getHeaders(), body);
 
     return ServerResponse.status(errorCode.getStatus())
