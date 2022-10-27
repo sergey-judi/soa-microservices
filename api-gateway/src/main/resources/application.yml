@@ -12,6 +12,7 @@ spring:
           predicates:
             - Path=/api/expense-tracker/**
           filters:
+            - RateLimiter=5,20s
             - StripPrefix=2
 
         - id: expense-tracker-frontend

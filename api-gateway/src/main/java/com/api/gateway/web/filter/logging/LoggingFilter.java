@@ -1,4 +1,4 @@
-package com.api.gateway.logging;
+package com.api.gateway.web.filter.logging;
 
 import com.api.gateway.properties.AuthProperties;
 import lombok.RequiredArgsConstructor;
