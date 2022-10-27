@@ -17,6 +17,14 @@ uri:
   dummy-server: http://dummy-server-backend:5000
 
 api:
+  throttling:
+    users:
+      user-id-1:
+        request-rate: 5
+        interval: 2m
+      user-id-2:
+        request-rate: 2
+        interval: 10s
   auth:
     protected-mapping: /api/**
     username: admin
